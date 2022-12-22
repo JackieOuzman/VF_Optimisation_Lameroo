@@ -85,6 +85,24 @@ RF_df <- left_join(RF_df, dist_taken_summary)
 rm(dist_taken_summary)
 
 
+### ------- UP TO HERE ----------### NEEDS MORE WORK
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #####################################################################################
