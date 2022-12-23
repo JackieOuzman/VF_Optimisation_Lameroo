@@ -27,15 +27,8 @@ GPS_Dist <- GPS_Dist %>% dplyr::select (ID_jaxs, Sheep_ID,
                                         local_time, 
                                         date,
                                         DOY, 
-                                        X , 
-                                        Y, 
-                                        dist_to_VF, 
-                                        VF_EX,
-                                        #Audio_values,#bring in at the next step 5b
-                                        #Shock_values, #bring in at the next step 5b
-                                        resting_percentage,
-                                        moving_percentage,
-                                        grazing_percentage )
+                                        Audio_values,
+                                        Shock_values  )
 
 GPS_Dist$local_time <- as.POSIXct(GPS_Dist$local_time,  tz = "Australia/Adelaide")
 GPS_Dist <- GPS_Dist %>%  rename(sheep = Sheep_ID)
@@ -74,8 +67,7 @@ str(GPS_Dist)
 # Need to round the local time to the closest 10 min
 GPS_Dist <- GPS_Dist %>% 
   dplyr::mutate(round_local_time =round_date(local_time, unit="10 mins"),
-                Time_sheep = paste0(round_local_time,"_", sheep) ,
-                Time_sheep_zone = paste0(round_local_time,"_", sheep, "_", VF_EX))
+                Time_sheep = paste0(round_local_time,"_", sheep) )
 
 
 rm(end,start, time.duration, time.interval)
@@ -106,35 +98,28 @@ for (sheep_list in sheep_list){
 ################################################################################  
   
   GPS_sheep <- GPS_Dist %>%  filter(sheep == sheep_list)
-  GPS_sheep <- GPS_sheep %>% 
-    #dplyr::distinct(Time_sheep, .keep_all = TRUE) #remove this line so I get the records that the animals went over the VF            
-    dplyr::distinct(Time_sheep_zone, .keep_all = TRUE)
   
+   
   ## the occurrence of a duplicated time_sheep
   
- # It might be a better to split the data into  outside_VF and inside_VF
+ # It might be a better to split the data into  audio and pulse
+  str(GPS_sheep)
+  Audio_values <- GPS_sheep %>% filter(Audio_values > 0) 
+  Shock_values <- GPS_sheep %>% filter(Shock_values > 0) 
   
-  outside_VF <- GPS_sheep %>% filter(VF_EX == "outside_VF") %>% dplyr::distinct(Time_sheep, .keep_all = TRUE) #I think I need to add this to Waikerie code
-  inside_VF <- GPS_sheep %>% filter(VF_EX == "inside_VF") %>% dplyr::distinct(Time_sheep, .keep_all = TRUE) #I think I need to add this to Waikerie code
+  Audio_values_max <- Audio_values %>% group_by(Time_sheep) %>% 
+    summarise(Audio_values_max = max(Audio_values, na.rm = TRUE) )
+  Shock_values_max <- Shock_values %>% group_by(Time_sheep) %>% 
+    summarise(Shock_values_max = max(Shock_values, na.rm = TRUE) )
   
-  GPS_sheep <- rbind(outside_VF,inside_VF )
   
-  duplication_report <- GPS_sheep %>% count(Time_sheep)
-   
-   GPS_sheep <- left_join(GPS_sheep,duplication_report ) %>% rename(occurance = n )
-   str(GPS_sheep)
-  # 
-   GPS_sheep <- GPS_sheep %>% mutate(
-     what_to_retain = case_when(
-       occurance == 1 & VF_EX == "outside_VF" ~ "retain",
-       occurance == 2 & VF_EX == "outside_VF" ~ "retain", #I think I need to add this to Waikerie code
-       occurance == 1 & VF_EX == "inside_VF" ~ "retain",
-       TRUE                      ~ "discard"
-     )
-   ) 
+ 
   
-  # remove the rows tp discard
-  GPS_sheep <- GPS_sheep %>% filter(what_to_retain == "retain")
+  GPS_sheep <- left_join(GPS_sheep, Audio_values_max)
+  GPS_sheep <- left_join(GPS_sheep, Shock_values_max)
+  
+  GPS_sheep[ is.na(GPS_sheep) ] <- 0
+  GPS_sheep <- GPS_sheep %>%  dplyr::select(-Audio_values,-Shock_values )
   
   GPS_sheep_reg_time <- left_join(regular_time_interval_sheep, GPS_sheep)
 
@@ -152,15 +137,6 @@ for (sheep_list in sheep_list){
     dplyr::filter(between(time_step, ymd_hms(start_sheep), ymd_hms(end_sheep))) 
  
   
-  ################################################################################
-  #### Do some cals  steps or distance travelled since last logged point ---- ####
-  ################################################################################ 
-
-    GPS_sheep_reg_time <- GPS_sheep_reg_time %>% 
-    arrange(local_time)
-  
-  GPS_sheep_reg_time <- GPS_sheep_reg_time %>% 
-    dplyr::mutate(step = sqrt( ((lead(X) - X)^ 2) + ((lead(Y) - Y)^ 2) ) )
   
   rm(
     GPS_sheep,
@@ -273,7 +249,7 @@ output_path <- "W:/VF/Optimising_VF/Lameroo/data_prep/"  #animals_GPS_trim_time
 
 
 write.csv(GPS_sheep_reg_time_step_all, 
-          paste0(output_path,"/step5_Greg_time_step_dist_travelled.csv"), 
+          paste0(output_path,"/step5b_Greg_time_step_dist_travelled_withCue.csv"), 
           row.names=FALSE)
 
 
