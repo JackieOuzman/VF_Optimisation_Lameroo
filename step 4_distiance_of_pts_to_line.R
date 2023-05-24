@@ -19,19 +19,28 @@ GPS <-   st_as_sf(GPS,
                          crs = 28354,
                          agr = "constant")
 
-GPS <- GPS %>% dplyr::select (ID, sheep, treatment,DOT,herd_postion,local_time, date,DOY, geometry)
+GPS <- GPS %>% dplyr::select (ID_jaxs,
+                              Sheep_ID,
+                              local_time, 
+                              date,
+                              DOY, 
+                              geometry,
+                              fencesID,
+                              Audio_values,
+                              Shock_values,
+                              resting_percentage,
+                              moving_percentage,
+                              grazing_percentage,
+                              training_period
+                              #ID, 
+                              #sheep, 
+                              #treatment,
+                              #DOT,
+                              #herd_postion,
+                              #local_time, date,DOY, geometry
+                              )
 names(GPS)
-#GPS_sheep2 <- GPS %>%  filter(sheep == 2)
-GPS_sheep_all <- GPS 
 
-coordinates <-as.data.frame( st_coordinates(GPS_sheep_all))
-GPS_sheep_all_df <- as.data.frame(GPS_sheep_all)
-
-GPS_sheep_all_df <- GPS_sheep_all_df %>% 
-  dplyr::select(-"geometry")
-
-
-GPS_sheep_all_df <-   cbind(GPS_sheep_all_df,coordinates )
 
 
 ############################################################################################
@@ -57,6 +66,9 @@ VF_line <- st_read("W:/VF/Optimising_VF/raw_data/Lameroo/VF_line.shp")
 ############################################################################################
 
 ### check by plotting
+
+str(GPS)
+
 
 ggplot() +
   geom_sf(data = hard_fence_bound, color = "black", fill = NA) +
