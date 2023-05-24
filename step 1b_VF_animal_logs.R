@@ -44,7 +44,7 @@ GPS <- GPS %>%
   dplyr::mutate( ID_jaxs = row_number())
 
 
-### what are the fences callled in this dataset?
+### what are the fences called in this dataset?
 unique(GPS$fencesID) # we only have 2 14594 and NULL
 
 
