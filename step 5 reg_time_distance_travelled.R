@@ -35,7 +35,8 @@ GPS_Dist <- GPS_Dist %>% dplyr::select (ID_jaxs, Sheep_ID,
                                         #Shock_values, #bring in at the next step 5b
                                         resting_percentage,
                                         moving_percentage,
-                                        grazing_percentage )
+                                        grazing_percentage ,
+                                        training_period)
 
 GPS_Dist$local_time <- as.POSIXct(GPS_Dist$local_time,  tz = "Australia/Adelaide")
 GPS_Dist <- GPS_Dist %>%  rename(sheep = Sheep_ID)

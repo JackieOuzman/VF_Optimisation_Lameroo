@@ -10,7 +10,6 @@ library(sp)
 library(sf)
 
 
-
 GPS <- read_csv("W:/VF/Optimising_VF/Lameroo/data_prep/step3_clip.csv")
 
 #turn into spatial data
