@@ -243,7 +243,7 @@ rm(day_20_before_yarding, day_20_after_yarding, day_20)
 
 ### put it back togther 
 
-animals_GPS_trim_time <- rbind(day_17, day_18_clean, day_19_clean, day_19_clean, day_20_clean, day_21)
+animals_GPS_trim_time <- rbind(day_17, day_18_clean, day_19_clean, day_20_clean, day_21)
 
 rm(day_17, day_18_clean, day_19_clean, day_21, day_20_clean, GPS_sf_trans)
 
