@@ -36,6 +36,18 @@ GPS_Dist <- GPS_Dist %>% dplyr::select (ID_jaxs, Sheep_ID,
 GPS_Dist$local_time <- as.POSIXct(GPS_Dist$local_time,  tz = "Australia/Adelaide")
 GPS_Dist <- GPS_Dist %>%  rename(sheep = Sheep_ID)
 str(GPS_Dist)
+
+### I have a problem with sheep 2 it used 2 different collars so I need to rename it 2.1 and 2.2
+
+GPS_Dist <- GPS_Dist %>% 
+  mutate(sheep = case_when(
+    sheep == 2 & local_time <= as.POSIXct("2022-10-18 09:01:16", tz = "Australia/Adelaide") ~ 2.1,
+    sheep == 2 & local_time > as.POSIXct("2022-10-18 09:01:16" , tz = "Australia/Adelaide")~ 2.2,
+    TRUE                      ~ sheep
+  )
+  )
+unique(GPS_Dist$sheep)
+
 ################################################################################
 #### --------------    what is the length of the trail?   -------------- ####
 ################################################################################
@@ -88,16 +100,6 @@ sheep_list
 str(GPS_Dist)
 
 
-GPS_Dist <- GPS_Dist %>% 
-  mutate(sheep = case_when(
-    sheep == 2 & local_time <= as.POSIXct("2022-10-18 09:01:16", tz = "Australia/Adelaide") ~ 2.1,
-    sheep == 2 & local_time > as.POSIXct("2022-10-18 09:01:16" , tz = "Australia/Adelaide")~ 2.2,
-    TRUE                      ~ sheep
-  )
-  )
-
-
-sheep_list <- c(2.1)
 
 sheep_list <- c(1, 2.1, 2.2, 3:10)
 #sheep_list <- 1
@@ -268,10 +270,18 @@ rm(GPS_sheep_reg_time_step1,
 # It looks to be ok because the GPS log data has it removed already and  I am using this file to join the regular time step to the GPS data
 
 
+### I have a problem with sheep 2 it used 2 different collars so I have renamed it 2.1 and 2.2 so now I need to convert back to 2
+
+GPS_Dist <- GPS_Dist %>% 
+  mutate(sheep = case_when(
+    sheep == 2.1  ~ 2,
+    sheep == 2.2  ~ 2,
+    TRUE                      ~ sheep
+  )
+  )
+unique(GPS_Dist$sheep)
 
 
-
-##______________________STOP and run again for problem sheep 2 _________________##
 
 
 output_path <- "W:/VF/Optimising_VF/Lameroo/data_prep/"  #animals_GPS_trim_time
