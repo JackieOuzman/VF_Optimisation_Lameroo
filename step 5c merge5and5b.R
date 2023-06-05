@@ -22,3 +22,9 @@ step5b <- step5b %>%
 
 
 all_step5 <- left_join(step5, step5b)
+
+
+output_path <- "W:/VF/Optimising_VF/Lameroo/data_prep/"  #animals_GPS_trim_time
+write.csv(all_step5, 
+          paste0(output_path,"/step5_all.csv"), 
+          row.names=FALSE)

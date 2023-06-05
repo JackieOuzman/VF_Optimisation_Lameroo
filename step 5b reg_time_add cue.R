@@ -29,8 +29,9 @@ GPS_Dist <- GPS_Dist %>% dplyr::select (ID_jaxs, Sheep_ID,
                                         DOY, 
                                         cumulativeAudioCount,
                                         cumulativeShockCount,
-                                        Audio_values,
-                                        Shock_values  )
+                                        # Audio_values,
+                                        # Shock_values  
+                                        )
 
 GPS_Dist$local_time <- as.POSIXct(GPS_Dist$local_time,  tz = "Australia/Adelaide")
 GPS_Dist <- GPS_Dist %>%  rename(sheep = Sheep_ID)
@@ -107,25 +108,10 @@ for (sheep_list in sheep_list){
   GPS_sheep <- GPS_sheep %>% 
     distinct(Time_sheep, .keep_all = TRUE)
  
-  # It might be a better to split the data into  audio and pulse
-  #str(GPS_sheep)
-  # Audio_values <- GPS_sheep %>% filter(Audio_values > 0) 
-  # Shock_values <- GPS_sheep %>% filter(Shock_values > 0) 
- #names(Audio_values) 
-  # Audio_values_max <- GPS_sheep %>% group_by(Time_sheep) %>% 
-  #   summarise(Audio_values_max = max(cumulativeAudioCount, na.rm = TRUE) )
-  # Shock_values_max <- GPS_sheep %>% group_by(Time_sheep) %>% 
-  #   summarise(Shock_values_max = max(cumulativeShockCount, na.rm = TRUE) )
-  # 
   
- 
-  
-  # GPS_sheep <- left_join(GPS_sheep, Audio_values_max)
-  # GPS_sheep <- left_join(GPS_sheep, Shock_values_max)
   
   GPS_sheep[ is.na(GPS_sheep) ] <- 0
-  #GPS_sheep <- GPS_sheep %>%  dplyr::select(-Audio_values,-Shock_values )
-  
+ 
   GPS_sheep_reg_time <- left_join(regular_time_interval_sheep, GPS_sheep)
 
   #### Trim the regular time step to match the end of sheep time
@@ -137,7 +123,7 @@ for (sheep_list in sheep_list){
   
   ## trim the joined data to the sheeps ID time in the trial 
   
-  #names(GPS_sheep_reg_time)
+  
   GPS_sheep_reg_time <- GPS_sheep_reg_time %>% 
     dplyr::filter(between(time_step, ymd_hms(start_sheep), ymd_hms(end_sheep))) 
 #-------------------------------------------------------------------------------- 
@@ -275,21 +261,6 @@ output_path <- "W:/VF/Optimising_VF/Lameroo/data_prep/"  #animals_GPS_trim_time
 write.csv(GPS_sheep_reg_time_step_all, 
           paste0(output_path,"/step5b_Greg_time_step_dist_travelled_withCue.csv"), 
           row.names=FALSE)
-
-
-
-
-#################################################################################
-#### check #####################################################################
-#################################################################################
-str(GPS_sheep_reg_time_step_all)
-unique(GPS_sheep_reg_time_step_all$VF_EX)
-
-
-
-count_exclusion_zone_occurance_per_animal_1 <- GPS_sheep_reg_time_step_all %>%  group_by( sheep,VF_EX ) %>% 
-  summarise(count_records = n())
-count_exclusion_zone_occurance_per_animal_1
 
 
 

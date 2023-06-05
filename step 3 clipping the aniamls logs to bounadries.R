@@ -31,7 +31,7 @@ VF <-  st_transform(VF, crs = 28354)
 
 
 
-step1_2 <- read_csv("W:/VF/Optimising_VF/Lameroo/data_prep/Step1c_animals_GPS_trim_time.csv")
+step1_2 <- read_csv("W:/VF/Optimising_VF/Lameroo/data_prep/Step1b_animals_GPS_trim_time.csv")
 
 #turn into spatial data
 step1_2_sf <-   st_as_sf(step1_2,
