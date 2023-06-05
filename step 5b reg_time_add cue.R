@@ -17,7 +17,7 @@ library(sf)
 #### --------------    Bring in data   -------------- ####
 ################################################################################
 
-GPS_Dist <- read_csv("W:/VF/Optimising_VF/Lameroo/data_prep/step4_dist_line_VF_zone.csv")
+GPS_Dist <- read_csv("W:/VF/Optimising_VF/Lameroo/data_prep/step3_clip.csv")
 names(GPS_Dist)
 
 ### subset the data to the clms I want.
@@ -27,6 +27,8 @@ GPS_Dist <- GPS_Dist %>% dplyr::select (ID_jaxs, Sheep_ID,
                                         local_time, 
                                         date,
                                         DOY, 
+                                        cumulativeAudioCount,
+                                        cumulativeShockCount,
                                         Audio_values,
                                         Shock_values  )
 
@@ -84,7 +86,7 @@ sheep_list
 sheep_list <- c(1:10)
 #sheep_list <- 1
 
-### as a function
+#### as a function
 for (sheep_list in sheep_list){
   
 ################################################################################  
@@ -102,24 +104,27 @@ for (sheep_list in sheep_list){
    
   ## the occurrence of a duplicated time_sheep
   
- # It might be a better to split the data into  audio and pulse
-  str(GPS_sheep)
-  Audio_values <- GPS_sheep %>% filter(Audio_values > 0) 
-  Shock_values <- GPS_sheep %>% filter(Shock_values > 0) 
-  
-  Audio_values_max <- Audio_values %>% group_by(Time_sheep) %>% 
-    summarise(Audio_values_max = max(Audio_values, na.rm = TRUE) )
-  Shock_values_max <- Shock_values %>% group_by(Time_sheep) %>% 
-    summarise(Shock_values_max = max(Shock_values, na.rm = TRUE) )
-  
+  GPS_sheep <- GPS_sheep %>% 
+    distinct(Time_sheep, .keep_all = TRUE)
+ 
+  # It might be a better to split the data into  audio and pulse
+  #str(GPS_sheep)
+  # Audio_values <- GPS_sheep %>% filter(Audio_values > 0) 
+  # Shock_values <- GPS_sheep %>% filter(Shock_values > 0) 
+ #names(Audio_values) 
+  # Audio_values_max <- GPS_sheep %>% group_by(Time_sheep) %>% 
+  #   summarise(Audio_values_max = max(cumulativeAudioCount, na.rm = TRUE) )
+  # Shock_values_max <- GPS_sheep %>% group_by(Time_sheep) %>% 
+  #   summarise(Shock_values_max = max(cumulativeShockCount, na.rm = TRUE) )
+  # 
   
  
   
-  GPS_sheep <- left_join(GPS_sheep, Audio_values_max)
-  GPS_sheep <- left_join(GPS_sheep, Shock_values_max)
+  # GPS_sheep <- left_join(GPS_sheep, Audio_values_max)
+  # GPS_sheep <- left_join(GPS_sheep, Shock_values_max)
   
   GPS_sheep[ is.na(GPS_sheep) ] <- 0
-  GPS_sheep <- GPS_sheep %>%  dplyr::select(-Audio_values,-Shock_values )
+  #GPS_sheep <- GPS_sheep %>%  dplyr::select(-Audio_values,-Shock_values )
   
   GPS_sheep_reg_time <- left_join(regular_time_interval_sheep, GPS_sheep)
 
@@ -135,9 +140,28 @@ for (sheep_list in sheep_list){
   #names(GPS_sheep_reg_time)
   GPS_sheep_reg_time <- GPS_sheep_reg_time %>% 
     dplyr::filter(between(time_step, ymd_hms(start_sheep), ymd_hms(end_sheep))) 
- 
+#-------------------------------------------------------------------------------- 
+  ### add in the audio and pulse counts cal from cumulative 
+#--------------------------------------------------------------------------------  
+   str(GPS_sheep_reg_time) 
   
+  #FILL missing data 
+  GPS_sheep_reg_time <- GPS_sheep_reg_time %>% 
+    tidyr::fill(cumulativeAudioCount, .direction = "down")
   
+  GPS_sheep_reg_time <- GPS_sheep_reg_time %>% 
+    tidyr::fill(cumulativeShockCount, .direction = "down")
+  
+   GPS_sheep_reg_time <- GPS_sheep_reg_time %>% 
+    mutate(Audio_values = cumulativeAudioCount - lag(cumulativeAudioCount))
+  
+  GPS_sheep_reg_time <- GPS_sheep_reg_time %>% 
+    mutate(Shock_values = cumulativeShockCount - lag(cumulativeShockCount))  
+    
+    
+##################################################################################################################
+    
+
   rm(
     GPS_sheep,
     regular_time_interval_sheep
