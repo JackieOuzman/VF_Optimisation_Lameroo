@@ -5,7 +5,7 @@ library(lubridate)
 library(readxl)
 
   
-GPS_Sheep <- read_csv("W:/VF/Optimising_VF/Lameroo/data_prep/step5_Greg_time_step_dist_travelled.csv")
+GPS_Sheep <- read_csv("W:/VF/Optimising_VF/Lameroo/data_prep/step5_all.csv")
  
 GPS_Sheep$local_time <- as.POSIXct(GPS_Sheep$local_time,  tz = "Australia/Adelaide")          
 GPS_Sheep$time_step <- as.POSIXct(GPS_Sheep$time_step,  tz = "Australia/Adelaide") 

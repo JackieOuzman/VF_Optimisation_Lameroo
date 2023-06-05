@@ -9,7 +9,7 @@ library(sp)
 library(sf)
 
 
-all_animals <- read_csv("W:/VF/Optimising_VF/Lameroo/data_prep/step5_Greg_time_step_dist_travelled.csv")
+all_animals <- read_csv("W:/VF/Optimising_VF/Lameroo/data_prep/step5_all.csv")
 
 all_animals$local_time <- as.POSIXct(all_animals$local_time,  tz = "Australia/Adelaide")
 
@@ -56,16 +56,23 @@ count_VF_occurance_per_animal_wide <- count_VF_occurance_per_animal_wide %>% dpl
 
 count_VF_occurance_per_animal_wide <-count_VF_occurance_per_animal_wide %>% 
   dplyr::mutate(total_counts = inside_VF + outside_VF,
-                prop_exclusion_zone = outside_VF /total_counts) %>% 
+                prop_exclusion_zone = ((outside_VF /total_counts)*100)) %>% 
   arrange(sheep )
 
 
 ### turn the time spent in exclusion zone into categorical data.
 
-count_VF_occurance_per_animal_wide <- count_VF_occurance_per_animal_wide %>% 
-  dplyr::mutate(compliance_score =
-    case_when(prop_exclusion_zone == 0 ~ "compliant",
-              prop_exclusion_zone > 0 ~ "non_compliant"))
+count_VF_occurance_per_animal_wide <-
+  count_VF_occurance_per_animal_wide %>%
+  dplyr::mutate(
+    compliance_score =
+      case_when(
+        prop_exclusion_zone <= 15 ~ "compliant",
+        prop_exclusion_zone > 15 ~ "non_compliant"
+      )
+  )
+# case_when(prop_exclusion_zone == 0 ~ "compliant",
+#           prop_exclusion_zone > 0 ~ "non_compliant"))
 
 sheep_compliance_score <- count_VF_occurance_per_animal_wide %>% dplyr::select(sheep, compliance_score)
 

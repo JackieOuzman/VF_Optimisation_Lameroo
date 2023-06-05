@@ -16,6 +16,8 @@ str(collared_animals)
 
 RF_df <- collared_animals %>% distinct(sheep, .keep_all = TRUE) %>% 
   dplyr::select(sheep, compliance_score)
+RF_df %>% distinct(compliance_score)
+RF_df <- RF_df %>%  filter(compliance_score != "NA" )
 
 #####################################################################################
 ### what is the average distance to the fence?
@@ -78,11 +80,77 @@ str(collared_animals)
 
 dist_taken_summary <- collared_animals %>%  group_by(sheep) %>% 
   summarise(total_dist_travel  =sum(step, na.rm=TRUE))
+
+
 dist_taken_summary
 
 RF_df <- left_join(RF_df, dist_taken_summary)
 
+dist_taken_summary <- collared_animals %>%  group_by(sheep) %>% 
+  summarise(mean_dist  =mean(step, na.rm=TRUE))
+
+RF_df <- left_join(RF_df, dist_taken_summary)
 rm(dist_taken_summary)
+
+
+
+#####################################################################################
+### what is the total number of cues audio and pulse and ratio for the length of the trial?
+### could do average  day 1 and 2
+######################################################################################
+
+str(collared_animals)
+unique(collared_animals$Cue)
+
+#rename so it matched other files
+collared_animals <- collared_animals %>% 
+  rename(audio = Audio_values ,
+         pulse = Shock_values)
+
+
+
+cue_summary <- collared_animals %>%  group_by(sheep) %>% 
+  summarise(total_audio  =sum(audio, na.rm=TRUE),
+            total_pulse  =sum(pulse, na.rm=TRUE),
+            ratio = total_audio/(total_pulse+total_audio)*100)
+cue_summary
+cue_summary[ is.na(cue_summary) ] <- NA
+
+
+RF_df <- left_join(RF_df, cue_summary)
+rm(cue_summary)
+
+
+cue_DOT_summary <- collared_animals %>%  group_by(sheep, DOT) %>% 
+  summarise(total_audio  =sum(audio, na.rm=TRUE),
+            total_pulse  =sum(pulse, na.rm=TRUE),
+            ratio = total_audio/(total_pulse+total_audio)*100)
+
+cue_DOT_summary_wide <- cue_DOT_summary %>% 
+  pivot_wider(names_from = DOT , 
+              values_from = c(total_audio, total_pulse, ratio))
+
+
+cue_DOT_summary_wide
+
+cue_DOT_summary_wide <- cue_DOT_summary_wide %>% 
+  rename(total_audio_Day1 = total_audio_1,
+         total_audio_Day2 = total_audio_2,
+         
+         total_pulse_Day1 = total_pulse_1,
+         total_pulse_Day2 = total_pulse_2,
+         
+         ratio_Day1 = ratio_1,
+         ratio_Day2 = ratio_2)
+
+cue_DOT_summary_wide[ is.na(cue_DOT_summary_wide) ] <- NA  
+
+
+RF_df <- left_join(RF_df, cue_DOT_summary_wide)
+rm(cue_DOT_summary_wide)
+
+
+
 
 
 ### ------- UP TO HERE ----------### NEEDS MORE WORK

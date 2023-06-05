@@ -84,7 +84,22 @@ sheep_list <- GPS_Dist %>% distinct(sheep) %>%  arrange(sheep)
 ### 26 sheep ID I need regular time interval for each sheep
 ### List of sites I want to run analysis for:
 sheep_list
-sheep_list <- c(1:10)
+### sheep 2 is a problem because the collar were swapped over. ####
+str(GPS_Dist)
+
+
+GPS_Dist <- GPS_Dist %>% 
+  mutate(sheep = case_when(
+    sheep == 2 & local_time <= as.POSIXct("2022-10-18 09:01:16", tz = "Australia/Adelaide") ~ 2.1,
+    sheep == 2 & local_time > as.POSIXct("2022-10-18 09:01:16" , tz = "Australia/Adelaide")~ 2.2,
+    TRUE                      ~ sheep
+  )
+  )
+
+
+sheep_list <- c(2.1)
+
+sheep_list <- c(1, 2.1, 2.2, 3:10)
 #sheep_list <- 1
 
 #### as a function
@@ -157,7 +172,7 @@ for (sheep_list in sheep_list){
   
   }       
 
-file_list <- data.frame(name_df = paste0("GPS_sheep_reg_time_step",c(1:10)))
+file_list <- data.frame(name_df = paste0("GPS_sheep_reg_time_step",c(1,2.1,2.2, 3:10)))
 
 
 
@@ -166,7 +181,8 @@ file_list <- data.frame(name_df = paste0("GPS_sheep_reg_time_step",c(1:10)))
 
 GPS_sheep_reg_time_step_all <- rbind(
   GPS_sheep_reg_time_step1,
-  GPS_sheep_reg_time_step2,
+  GPS_sheep_reg_time_step2.1,
+  GPS_sheep_reg_time_step2.2,
   GPS_sheep_reg_time_step3,
   GPS_sheep_reg_time_step4,
   GPS_sheep_reg_time_step5,
@@ -207,7 +223,7 @@ GPS_sheep_reg_time_step_all <- rbind(
 
 
 rm(GPS_sheep_reg_time_step1,
-   GPS_sheep_reg_time_step2,
+   #GPS_sheep_reg_time_step2,
    GPS_sheep_reg_time_step3,
    GPS_sheep_reg_time_step4,
    GPS_sheep_reg_time_step5,
@@ -253,6 +269,9 @@ rm(GPS_sheep_reg_time_step1,
 
 
 
+
+
+##______________________STOP and run again for problem sheep 2 _________________##
 
 
 output_path <- "W:/VF/Optimising_VF/Lameroo/data_prep/"  #animals_GPS_trim_time
