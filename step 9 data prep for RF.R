@@ -100,7 +100,7 @@ rm(dist_taken_summary)
 ######################################################################################
 
 str(collared_animals)
-unique(collared_animals$Cue)
+
 
 #rename so it matched other files
 collared_animals <- collared_animals %>% 
@@ -121,10 +121,29 @@ RF_df <- left_join(RF_df, cue_summary)
 rm(cue_summary)
 
 
+
+#### per day cue data
+#####################################################
+### Add DOY clm
+temp <- collared_animals %>% 
+  filter(!is.na(DOY ))
+
+min_DOY <- min(temp$DOY, na.rm = TRUE)
+max_DOY <- max(temp$DOY, na.rm = TRUE)
+
+collared_animals <- collared_animals %>% 
+  mutate(DOT = (DOY - min_DOY)+1 )
+  
+#####################################################
+
 cue_DOT_summary <- collared_animals %>%  group_by(sheep, DOT) %>% 
   summarise(total_audio  =sum(audio, na.rm=TRUE),
             total_pulse  =sum(pulse, na.rm=TRUE),
             ratio = total_audio/(total_pulse+total_audio)*100)
+
+cue_DOT_summary <- cue_DOT_summary %>% 
+  filter(!is.na(sheep ))
+
 
 cue_DOT_summary_wide <- cue_DOT_summary %>% 
   pivot_wider(names_from = DOT , 
