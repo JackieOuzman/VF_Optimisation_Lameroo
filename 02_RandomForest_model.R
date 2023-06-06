@@ -20,8 +20,8 @@ load.libraries(libs)
 
 
 
-baseDir <- "W:/VF/Optimising_VF/Waikerie/data_prep/RF_model_outputs/"
-outDir <- "W:/VF/Optimising_VF/Waikerie/data_prep/RF_model_input_data/"
+baseDir <- "W:/VF/Optimising_VF/Lameroo/data_prep/RF_model_outputs/"
+outDir <- "W:/VF/Optimising_VF/Lameroo/data_prep/RF_model_input_data/"
 
 
 #loading the model
@@ -54,24 +54,30 @@ str(RF_df_DOT1)
 # •	mean_number_animals_close
 
 
-         
+names(RF_df_DOT1)      
 
 
 RF_df_DOT1_for_model <- RF_df_DOT1 %>%  dplyr::select(
   mean_dist_frm_VF_inside_inclusion,
   max_dist_frm_VF_inside_inclusion,
+  
   mean_dist_frm_VF_outside_inclusion,
+  max_dist_frm_VF_outside_inclusion,
+  
   total_dist_travel,
+  mean_dist,
   total_audio,
   total_pulse,
   ratio,
+  
   prop_resting,
-  prop_walking,
-  prop_running,
+  prop_grazing,
+  prop_moving,
   mean_number_animals_close
 )
 
 str(RF_df_DOT1_for_model)
+
 
 pred_test <- predict(RF_modelVs1,
                      newdata = RF_df_DOT1_for_model,
@@ -91,7 +97,7 @@ sheep_ID_compliance_score_withRF_results <- sheep_ID_compliance_score_withRF_res
     
   ))
 
-
+outDir
 write.csv(sheep_ID_compliance_score_withRF_results, 
           paste0(outDir,"/sheep_ID_compliance_score_withRF_results_DOT1.csv"), 
           row.names=FALSE)
