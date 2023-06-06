@@ -170,11 +170,75 @@ rm(cue_DOT_summary_wide)
 
 
 
+#####################################################################################
+### what is the proportion of activity spent resting lying grazing? for the length of the trial?
+
+######################################################################################
+str(collared_animals)
+
+beha_summary <- collared_animals %>%  group_by(sheep) %>% 
+  summarise(total_resting   =sum(resting_percentage,  na.rm=TRUE),
+            total_grazing  =sum(grazing_percentage , na.rm=TRUE),
+            total_moving   =sum(moving_percentage,  na.rm=TRUE),  
+            total_beha      =  (total_resting+ total_grazing+ total_moving)                  
+  )                  
+
+beha_summary <- beha_summary %>% 
+  dplyr::mutate(
+    prop_resting = (total_resting/total_beha)*100,
+    prop_grazing = (total_grazing/total_beha)*100,
+    prop_moving = (total_moving/total_beha)*100,
+    check = (prop_resting+prop_grazing+prop_moving)
+  )
+beha_summary <-beha_summary %>%  dplyr::select(sheep, prop_resting, prop_grazing,prop_moving)       
+
+RF_df <- left_join(RF_df, beha_summary)
+rm(beha_summary)
 
 
-### ------- UP TO HERE ----------### NEEDS MORE WORK
+#####################################################################################
+### add in the distance between animals
+######################################################################################
+
+dist_bewteen <- read_csv("W:/VF/Optimising_VF/Lameroo/data_prep/step7_count_close_animals.csv")
 
 
+
+## make a new variable hours
+dist_bewteen$time_step <- as.POSIXct(dist_bewteen$time_step,  tz = "Australia/Adelaide")
+dist_bewteen <- dist_bewteen %>%  dplyr::mutate(date= date(time_step))  
+
+ 
+
+#keep sheep with collars only on the days that the trials were run for them
+
+
+
+## we have a problem the data has a heap of zero some of these relate to when the trial was run and not run
+
+
+
+mean_number_close_animals<- dist_bewteen %>%  group_by(sheep) %>% 
+  summarise(mean_number_animals_close = mean(numb_sheep_close, na.rm=TRUE))  %>% 
+  arrange(sheep)
+
+mean_number_close_animals
+
+
+RF_df <- left_join(RF_df, mean_number_close_animals)
+rm(mean_number_close_animals)
+
+
+###################################################################################
+###                 write out df ready for the next step                      ###
+###################################################################################
+
+output_path <- "W:/VF/Optimising_VF/Waikerie/data_prep/"  
+
+write.csv(RF_df, 
+          paste0(output_path,"/step9_RF_df_input.csv"), 
+          row.names=FALSE)
+###################################################################################
 
 
 
