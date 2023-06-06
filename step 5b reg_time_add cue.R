@@ -272,14 +272,14 @@ rm(GPS_sheep_reg_time_step1,
 
 ### I have a problem with sheep 2 it used 2 different collars so I have renamed it 2.1 and 2.2 so now I need to convert back to 2
 
-GPS_Dist <- GPS_Dist %>% 
+GPS_sheep_reg_time_step_all <- GPS_sheep_reg_time_step_all %>% 
   mutate(sheep = case_when(
     sheep == 2.1  ~ 2,
     sheep == 2.2  ~ 2,
     TRUE                      ~ sheep
   )
   )
-unique(GPS_Dist$sheep)
+unique(GPS_sheep_reg_time_step_all$sheep)
 
 
 
