@@ -170,13 +170,14 @@ cue_DOT_summary_wide
 
 cue_DOT_summary_wide <- cue_DOT_summary_wide %>% 
   rename(total_audio_Day1 = total_audio_1,
-         total_audio_Day2 = total_audio_2,
+         #total_audio_Day2 = total_audio_2,
          
          total_pulse_Day1 = total_pulse_1,
-         total_pulse_Day2 = total_pulse_2,
+         #total_pulse_Day2 = total_pulse_2,
          
          ratio_Day1 = ratio_1,
-         ratio_Day2 = ratio_2)
+         #ratio_Day2 = ratio_2
+         )
 
 cue_DOT_summary_wide[ is.na(cue_DOT_summary_wide) ] <- NA  
 
@@ -216,8 +217,8 @@ rm(beha_summary)
 ### add in the distance between animals
 ######################################################################################
 
-#dist_bewteen <- read_csv("W:/VF/Optimising_VF/Lameroo/data_prep/step7_count_close_animals.csv")
-### This needs to be revised for day 1 data only
+dist_bewteen <- read_csv("W:/VF/Optimising_VF/Lameroo/data_prep/step7_count_close_animals_DOT1.csv")
+
 
 
 ## make a new variable hours
