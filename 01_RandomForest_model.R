@@ -158,7 +158,7 @@ whats_important_for_model <- as.data.frame(importance(RF_model))
 whats_important_for_model <- whats_important_for_model %>%  arrange(desc(MeanDecreaseGini))
 
 whats_important_for_model$MeanDecreaseGini <- round(whats_important_for_model$MeanDecreaseGini,2)
-
+whats_important_for_model
 # ---------------------------------------------------------------------------------------------------
 
 # Now lets try with subset of data.
