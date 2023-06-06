@@ -233,7 +233,7 @@ rm(mean_number_close_animals)
 ###                 write out df ready for the next step                      ###
 ###################################################################################
 
-output_path <- "W:/VF/Optimising_VF/Waikerie/data_prep/"  
+output_path <- "W:/VF/Optimising_VF/Lameroo/data_prep/"  
 
 write.csv(RF_df, 
           paste0(output_path,"/step9_RF_df_input.csv"), 
