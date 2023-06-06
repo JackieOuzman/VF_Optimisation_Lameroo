@@ -279,6 +279,10 @@ GPS_sheep_reg_time_step_all <- GPS_sheep_reg_time_step_all %>%
     TRUE                      ~ sheep
   )
   )
+
+GPS_sheep_reg_time_step_all <- GPS_sheep_reg_time_step_all %>% 
+  dplyr::mutate(Time_sheep = paste0(round_local_time,"_", sheep) )
+
 unique(GPS_sheep_reg_time_step_all$sheep)
 
 
