@@ -22,12 +22,6 @@ list_of_comparsions <- list_of_comparsions %>%  filter(is.na(problem))
 list_of_comparsions$sheep <- as.character(list_of_comparsions$sheep)
 list_of_comparsions <- list_of_comparsions %>% mutate(comparison = paste0("dist",comparison))
 
-### ---- for treatment      ----####
-#list_of_comparsions <- list_of_comparsions %>%  filter(treatment == "0.66") 
-#list_of_comparsions <- list_of_comparsions %>%  filter(treatment == "0.33") 
-#list_of_comparsions <- list_of_comparsions %>%  filter(treatment == "1") 
-#list_of_comparsions <- list_of_comparsions %>%  filter(treatment == "control")
-
 
 
 list_of_sheep <- list_of_comparsions
@@ -38,10 +32,22 @@ list_of_sheep <- c(list_of_sheep$sheep )
 
 
 ### ---- for treatment      ----####
-
 matrix <- read_csv("W:/VF/Optimising_VF/Lameroo/data_prep/step6_dist_between_animals_matrix.csv") 
 
 reg_time_step <- matrix %>%   distinct(time_step) #creates a df with regular time step
+
+### ---- make the reg_time_step smaller to reflect the start of the trial      ----####
+str(reg_time_step)
+# retain day 1 = 2022-10-17
+
+reg_time_step <- reg_time_step %>% 
+  mutate(date = date(time_step))
+
+
+reg_time_step <- reg_time_step %>%  filter(date == "2022-10-17")#day 1
+
+
+
 
 df <- data.frame(reg_time_step=POSIXct(),
                  numb_sheep_close=integer(),
@@ -85,4 +91,4 @@ df <- rbind(df, df_temp)
 
 
 
-write.csv(df, "W:/VF/Optimising_VF/Lameroo/data_prep/step7_count_close_animals.csv", row.names = FALSE)
+write.csv(df, "W:/VF/Optimising_VF/Lameroo/data_prep/step7_count_close_animals_DOT1.csv", row.names = FALSE)
