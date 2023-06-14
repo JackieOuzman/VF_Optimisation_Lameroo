@@ -19,6 +19,16 @@ RF_df <- collared_animals %>% distinct(sheep, .keep_all = TRUE) %>%
 RF_df %>% distinct(compliance_score)
 RF_df <- RF_df %>%  filter(compliance_score != "NA" )
 
+
+################################################################################
+####    remove the time logs I don't want      ###########################
+################################################################################
+names(collared_animals)
+distinct(collared_animals, training_period)
+
+collared_animals <- collared_animals %>% 
+  dplyr::filter(training_period != training)
+
 #####################################################################################
 ### what is the average distance to the fence?
 ## average distance to VF when inside inclusion zone and when outside inclusion zone
