@@ -30,6 +30,15 @@ all_animals$local_time <- as.POSIXct(all_animals$local_time,  tz = "Australia/Ad
 
 all_animals_collars <- all_animals
 
+################################################################################
+####    remove the time logs I don't want      ###########################
+################################################################################
+names(all_animals_collars)
+distinct(all_animals_collars, training_period)
+
+all_animals_collars <- all_animals_collars %>% 
+  filter(training_period != training)
+
 ###############################################################################
 #### create a ID variable if the animal is in the exclusion zone or not  #####
 ### perhaps something like time spent in the VF ####
