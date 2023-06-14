@@ -129,13 +129,15 @@ write.csv(correaltion,
           row.names=FALSE)
 
 #---------------------------------------##
+
+
+
 str(RF_df)
 
-## remove highly correlated varaiables
-# RF_df <- RF_df %>% dplyr::select(#-mean_dist_frm_VF_outside_inclusion,
-#                                  -max_dist_frm_VF_outside_inclusion,
-#                                  -prop_standing
-#                                  )
+# remove highly correlated varaiables
+RF_df <- RF_df %>% dplyr::select(-mean_dist,
+                                 -total_pulse
+                                 )
 
 names(RF_df)
 
