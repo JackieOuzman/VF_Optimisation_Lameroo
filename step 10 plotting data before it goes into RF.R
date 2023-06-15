@@ -50,6 +50,38 @@ collared_animals <- collared_animals %>%
          behaviour_stage = case_when(
          DOT == 1 ~ "Early behaviour",
          DOT > 1 ~ "Later behaviour"))
+
+################################################################################
+### summary of data  ###
+################################################################################
+collared_animals_summary <- collared_animals %>% 
+  group_by(behaviour_stage) %>% 
+  summarise(dist_to_VF_mean = mean(dist_to_VF, na.rm = FALSE),
+            dist_to_VF_sd = sd(dist_to_VF, na.rm = FALSE),
+            
+            resting_percentage_mean = mean(resting_percentage, na.rm = FALSE),
+            resting_percentage_sd = sd(resting_percentage, na.rm = FALSE),
+            
+            moving_percentage_mean = mean(moving_percentage, na.rm = FALSE),
+            moving_percentage_sd = sd(moving_percentage, na.rm = FALSE),
+            
+            resting_percentage_mean = mean(resting_percentage, na.rm = FALSE),
+            resting_percentage_VF_sd = sd(resting_percentage, na.rm = FALSE),
+            
+            grazing_percentage_mean = mean(grazing_percentage, na.rm = FALSE),
+            grazing_percentage_sd = sd(grazing_percentage, na.rm = FALSE),
+            
+            step_mean = mean(step, na.rm = FALSE),
+            stepF_sd = sd(step, na.rm = FALSE),
+            
+            Audio_values_mean = mean(Audio_values, na.rm = FALSE),
+            Audio_values_sd = sd(Audio_values, na.rm = FALSE),
+              
+            Shock_values_values_mean = mean(Shock_values, na.rm = FALSE),
+            Shock_values_sd = sd(Shock_values, na.rm = FALSE)
+              )
+
+
 ################################################################################
 ######## PLOTS
 ################################################################################
