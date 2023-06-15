@@ -27,8 +27,43 @@ names(collared_animals)
 distinct(collared_animals, training_period)
 
 collared_animals <- collared_animals %>% 
-  dplyr::filter(training_period != training)
+  dplyr::filter(training_period != "training")
 
+################################################################################
+
+### Add DOY clm
+temp <- collared_animals %>% 
+  filter(!is.na(DOY ))
+
+min_DOY <- min(temp$DOY, na.rm = TRUE)
+max_DOY <- max(temp$DOY, na.rm = TRUE)
+
+collared_animals <- collared_animals %>% 
+  mutate(DOT = (DOY - min_DOY)+1 )
+
+collared_animals$DOY <- as.double(collared_animals$DOY )
+
+################################################################################
+### Definition of early behaviour ###
+################################################################################
+
+str(collared_animals)
+
+collared_animals <- collared_animals %>% 
+  mutate(
+    behaviour_stage = case_when(
+      DOT == 1 ~ "Early behaviour",
+      DOT > 1 ~ "Later behaviour"))
+
+################################################################################
+### Hours for early behaviour and hours for later behaviour
+hours_behav <- collared_animals %>% 
+  group_by(behaviour_stage) %>% 
+  summarise(count_logs = count(behaviour_stage))
+
+hours_behav <-   collared_animals %>% count(behaviour_stage) 
+hours_behav$n <- as.double(hours_behav$n)
+hours_behav <-  hours_behav %>% mutate(mins = n *10) #each data point is a 10min log
 #####################################################################################
 ### what is the average distance to the fence?
 ## average distance to VF when inside inclusion zone and when outside inclusion zone
@@ -52,19 +87,25 @@ collared_animals <- collared_animals %>%
 
 
 
-#----summaries the distance to VF variable
+#----summaries the distance to VF variable by grouping early behaviour
 str(collared_animals)
 
 
-dist_frm_VF_summary <- collared_animals %>%  group_by(sheep) %>% 
+dist_frm_VF_summary <- collared_animals %>%  group_by(behaviour_stage) %>% 
   summarise(
             mean_dist_frm_VF_inside_inclusion =mean(dist_frm_VF_inside_inclusion, na.rm=TRUE),
+            SD_dist_frm_VF_inside_inclusion =sd(dist_frm_VF_inside_inclusion, na.rm=TRUE),
+            
             max_dist_frm_VF_inside_inclusion =max(dist_frm_VF_inside_inclusion, na.rm=TRUE),
+            SD_dist_frm_VF_inside_inclusion =sd(dist_frm_VF_inside_inclusion, na.rm=TRUE),
             
             mean_dist_frm_VF_outside_inclusion =mean(dist_frm_VF_outside_inclusion, na.rm=TRUE), #this will give you a warning message beacuse of the heaps of zero values
-            max_dist_frm_VF_outside_inclusion =max(dist_frm_VF_outside_inclusion, na.rm=TRUE)
+            SD_dist_frm_VF_outside_inclusion =sd(dist_frm_VF_outside_inclusion, na.rm=TRUE),
+            
+            max_dist_frm_VF_outside_inclusion =max(dist_frm_VF_outside_inclusion, na.rm=TRUE),
+            SD_dist_frm_VF_outside_inclusion =sd(dist_frm_VF_outside_inclusion, na.rm=TRUE)
             )
-
+################################################################################
             
 dist_frm_VF_summary <- as.data.frame(dist_frm_VF_summary)
 dist_frm_VF_summary[ is.na(dist_frm_VF_summary) ] <- NA
@@ -76,31 +117,33 @@ dist_frm_VF_summary <- dist_frm_VF_summary %>%
                   case_when(max_dist_frm_VF_outside_inclusion > 0 ~ max_dist_frm_VF_outside_inclusion,
                 TRUE   ~ NA_real_ ))
 
-###--- join distance to VF variables to the RF df
+###--- rename the output and add the hours
 
-RF_df <- left_join(RF_df, dist_frm_VF_summary)
+RF_df <- dist_frm_VF_summary
+RF_df <- left_join(RF_df, hours_behav)
 
 rm(dist_frm_VF_summary)
 
 #####################################################################################
-### what is the total distance travelled for the length of the trial?
+### what is the total distance travelled for the length of the per hours?
 
 ######################################################################################
 str(collared_animals)
 
-dist_taken_summary <- collared_animals %>%  group_by(sheep) %>% 
+dist_taken_summary <- collared_animals %>%  group_by(sheep, behaviour_stage) %>% 
   summarise(total_dist_travel  =sum(step, na.rm=TRUE))
 
 
-dist_taken_summary
+dist_taken_summary <- left_join(dist_taken_summary, hours_behav)
+dist_taken_summary <- dist_taken_summary %>% 
+  mutate(dist_travel_ratio = total_dist_travel/ mins)
 
-RF_df <- left_join(RF_df, dist_taken_summary)
 
-dist_taken_summary <- collared_animals %>%  group_by(sheep) %>% 
-  summarise(mean_dist  =mean(step, na.rm=TRUE))
+dist_taken_summary_2 <- dist_taken_summary %>%  group_by(behaviour_stage) %>% 
+  summarise(mean_dist_ratio  =mean(dist_travel_ratio, na.rm=TRUE))
 
-RF_df <- left_join(RF_df, dist_taken_summary)
-rm(dist_taken_summary)
+RF_df <- left_join(RF_df, dist_taken_summary_2)
+rm(dist_taken_summary, dist_taken_summary_2)
 
 
 
@@ -119,10 +162,10 @@ collared_animals <- collared_animals %>%
 
 
 
-cue_summary <- collared_animals %>%  group_by(sheep) %>% 
-  summarise(total_audio  =sum(audio, na.rm=TRUE),
-            total_pulse  =sum(pulse, na.rm=TRUE),
-            ratio = total_audio/(total_pulse+total_audio)*100)
+cue_summary <- collared_animals %>%  group_by(behaviour_stage) %>% 
+  summarise(mean_audio  =mean(audio, na.rm=TRUE),
+            mean_pulse  =mean(pulse, na.rm=TRUE),
+            mean_ratio = mean_audio/(mean_pulse+mean_audio)*100)
 cue_summary
 cue_summary[ is.na(cue_summary) ] <- NA
 
@@ -134,50 +177,50 @@ rm(cue_summary)
 
 #### per day cue data
 #####################################################
-### Add DOY clm
-temp <- collared_animals %>% 
-  filter(!is.na(DOY ))
-
-min_DOY <- min(temp$DOY, na.rm = TRUE)
-max_DOY <- max(temp$DOY, na.rm = TRUE)
-
-collared_animals <- collared_animals %>% 
-  mutate(DOT = (DOY - min_DOY)+1 )
-  
-#####################################################
-
-cue_DOT_summary <- collared_animals %>%  group_by(sheep, DOT) %>% 
-  summarise(total_audio  =sum(audio, na.rm=TRUE),
-            total_pulse  =sum(pulse, na.rm=TRUE),
-            ratio = total_audio/(total_pulse+total_audio)*100)
-
-cue_DOT_summary <- cue_DOT_summary %>% 
-  filter(!is.na(sheep ))
-
-
-cue_DOT_summary_wide <- cue_DOT_summary %>% 
-  pivot_wider(names_from = DOT , 
-              values_from = c(total_audio, total_pulse, ratio))
-
-
-cue_DOT_summary_wide
-
-cue_DOT_summary_wide <- cue_DOT_summary_wide %>% 
-  rename(total_audio_Day1 = total_audio_1,
-         total_audio_Day2 = total_audio_2,
-         
-         total_pulse_Day1 = total_pulse_1,
-         total_pulse_Day2 = total_pulse_2,
-         
-         ratio_Day1 = ratio_1,
-         ratio_Day2 = ratio_2)
-
-cue_DOT_summary_wide[ is.na(cue_DOT_summary_wide) ] <- NA  
-
-
-RF_df <- left_join(RF_df, cue_DOT_summary_wide)
-rm(cue_DOT_summary_wide)
-
+# ### Add DOY clm
+# temp <- collared_animals %>% 
+#   filter(!is.na(DOY ))
+# 
+# min_DOY <- min(temp$DOY, na.rm = TRUE)
+# max_DOY <- max(temp$DOY, na.rm = TRUE)
+# 
+# collared_animals <- collared_animals %>% 
+#   mutate(DOT = (DOY - min_DOY)+1 )
+#   
+# #####################################################
+# 
+# cue_DOT_summary <- collared_animals %>%  group_by(sheep, DOT) %>% 
+#   summarise(total_audio  =sum(audio, na.rm=TRUE),
+#             total_pulse  =sum(pulse, na.rm=TRUE),
+#             ratio = total_audio/(total_pulse+total_audio)*100)
+# 
+# cue_DOT_summary <- cue_DOT_summary %>% 
+#   filter(!is.na(sheep ))
+# 
+# 
+# cue_DOT_summary_wide <- cue_DOT_summary %>% 
+#   pivot_wider(names_from = DOT , 
+#               values_from = c(total_audio, total_pulse, ratio))
+# 
+# 
+# cue_DOT_summary_wide
+# 
+# cue_DOT_summary_wide <- cue_DOT_summary_wide %>% 
+#   rename(total_audio_Day1 = total_audio_1,
+#          total_audio_Day2 = total_audio_2,
+#          
+#          total_pulse_Day1 = total_pulse_1,
+#          total_pulse_Day2 = total_pulse_2,
+#          
+#          ratio_Day1 = ratio_1,
+#          ratio_Day2 = ratio_2)
+# 
+# cue_DOT_summary_wide[ is.na(cue_DOT_summary_wide) ] <- NA  
+# 
+# 
+# RF_df <- left_join(RF_df, cue_DOT_summary_wide)
+# rm(cue_DOT_summary_wide)
+# 
 
 
 #####################################################################################
@@ -186,21 +229,20 @@ rm(cue_DOT_summary_wide)
 ######################################################################################
 str(collared_animals)
 
-beha_summary <- collared_animals %>%  group_by(sheep) %>% 
-  summarise(total_resting   =sum(resting_percentage,  na.rm=TRUE),
-            total_grazing  =sum(grazing_percentage , na.rm=TRUE),
-            total_moving   =sum(moving_percentage,  na.rm=TRUE),  
-            total_beha      =  (total_resting+ total_grazing+ total_moving)                  
+beha_summary <- collared_animals %>%  group_by(behaviour_stage) %>% 
+  summarise(mean_resting   =mean(resting_percentage,  na.rm=TRUE),
+            mean_grazing  =mean(grazing_percentage , na.rm=TRUE),
+            mean_moving   =mean(moving_percentage,  na.rm=TRUE),  
+            mean_beha      =  (mean_resting+ mean_grazing+ mean_moving)                  
   )                  
 
 beha_summary <- beha_summary %>% 
   dplyr::mutate(
-    prop_resting = (total_resting/total_beha)*100,
-    prop_grazing = (total_grazing/total_beha)*100,
-    prop_moving = (total_moving/total_beha)*100,
-    check = (prop_resting+prop_grazing+prop_moving)
-  )
-beha_summary <-beha_summary %>%  dplyr::select(sheep, prop_resting, prop_grazing,prop_moving)       
+    prop_resting = (mean_resting/mean_beha)*100,
+    prop_grazing = (mean_grazing/mean_beha)*100,
+    prop_moving = (mean_moving/mean_beha)*100    )
+  
+beha_summary <-beha_summary %>%  dplyr::select(behaviour_stage, prop_resting, prop_grazing,prop_moving)       
 
 RF_df <- left_join(RF_df, beha_summary)
 rm(beha_summary)
@@ -228,9 +270,8 @@ dist_bewteen <- dist_bewteen %>%  dplyr::mutate(date= date(time_step))
 
 
 
-mean_number_close_animals<- dist_bewteen %>%  group_by(sheep) %>% 
-  summarise(mean_number_animals_close = mean(numb_sheep_close, na.rm=TRUE))  %>% 
-  arrange(sheep)
+mean_number_close_animals<- dist_bewteen %>%  group_by(behaviour_stage) %>% 
+  summarise(mean_number_animals_close = mean(numb_sheep_close, na.rm=TRUE))  
 
 mean_number_close_animals
 
