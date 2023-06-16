@@ -23,12 +23,13 @@ names(Summary_df_for_plots)
 ################################################################################
 
 Mean_VF_graz <- ggplot(Summary_df_for_plots, aes(x=behaviour_stage, y=mean_dist_frm_VF_inside_inclusion, 
-                                          fill = behaviour_stage)) + 
-  geom_bar(stat= "identity")+
-  theme(legend.position="none")+
-  geom_errorbar(aes(ymin=mean_dist_frm_VF_inside_inclusion-SD_dist_frm_VF_inside_inclusion, 
-                    ymax=mean_dist_frm_VF_inside_inclusion+SD_dist_frm_VF_inside_inclusion), width=.2,
-                position=position_dodge(.9))+
+                                                 fill= compliance_score 
+                                          )) + 
+  geom_bar(stat= "identity", position=position_dodge())+
+  #theme(legend.position="none")+
+  # geom_errorbar(aes(ymin=mean_dist_frm_VF_inside_inclusion-SD_dist_frm_VF_inside_inclusion, 
+  #                   ymax=mean_dist_frm_VF_inside_inclusion+SD_dist_frm_VF_inside_inclusion), width=.2,
+  #               position=position_dodge(.9))+
   labs(title="Mean Distance from VF when in grazing zone", 
        x="", 
        y = "mean")+
@@ -36,8 +37,9 @@ Mean_VF_graz <- ggplot(Summary_df_for_plots, aes(x=behaviour_stage, y=mean_dist_
    
 
 Max_VF_graz <- ggplot(Summary_df_for_plots, aes(x=behaviour_stage, y=max_dist_frm_VF_inside_inclusion, 
-                                          fill = behaviour_stage)) + 
-  geom_bar(stat= "identity")+
+                                                fill= compliance_score 
+)) + 
+  geom_bar(stat= "identity", position=position_dodge())+
   theme(legend.position="none")+
   labs(title="Max Distance from VF when in grazing zone", 
        x="", 
@@ -45,12 +47,12 @@ Max_VF_graz <- ggplot(Summary_df_for_plots, aes(x=behaviour_stage, y=max_dist_fr
   scale_fill_manual(values=c("#999999",  "#56B4E9"))
 
 Mean_VF_exl <- ggplot(Summary_df_for_plots, aes(x=behaviour_stage, y=mean_dist_frm_VF_outside_inclusion, 
-                                          fill = behaviour_stage)) + 
-  geom_bar(stat= "identity")+
+                                                fill= compliance_score )) + 
+  geom_bar(stat= "identity", position=position_dodge())+
   theme(legend.position="none")+
-  geom_errorbar(aes(ymin=mean_dist_frm_VF_outside_inclusion-SD_dist_frm_VF_outside_inclusion, 
-                    ymax=mean_dist_frm_VF_outside_inclusion+SD_dist_frm_VF_outside_inclusion), width=.2,
-                position=position_dodge(.9))+
+  # geom_errorbar(aes(ymin=mean_dist_frm_VF_outside_inclusion-SD_dist_frm_VF_outside_inclusion, 
+  #                   ymax=mean_dist_frm_VF_outside_inclusion+SD_dist_frm_VF_outside_inclusion), width=.2,
+  #               position=position_dodge(.9))+
   labs(title="Mean Distance from VF when in exclusion zone", 
        x="", 
        y = "mean")+
@@ -58,8 +60,8 @@ Mean_VF_exl <- ggplot(Summary_df_for_plots, aes(x=behaviour_stage, y=mean_dist_f
 
 
 Max_VF_ex <- ggplot(Summary_df_for_plots, aes(x=behaviour_stage, y=max_dist_frm_VF_outside_inclusion, 
-                                          fill = behaviour_stage)) + 
-  geom_bar(stat= "identity")+
+                                              fill= compliance_score )) + 
+  geom_bar(stat= "identity", position=position_dodge())+
   theme(legend.position="none")+
   labs(title="Max Distance from VF when in exclusion zone", 
        x="", 
@@ -68,8 +70,9 @@ Max_VF_ex <- ggplot(Summary_df_for_plots, aes(x=behaviour_stage, y=max_dist_frm_
 
 
 mean_dist_travel <- ggplot(Summary_df_for_plots, aes(x=behaviour_stage, y=mean_dist_ratio, 
-                                          fill = behaviour_stage)) + 
-  geom_bar(stat= "identity")+
+                                                     fill= compliance_score 
+)) + 
+  geom_bar(stat= "identity", position=position_dodge())+
   theme(legend.position="none")+
   # geom_errorbar(aes(ymin=mean_dist_ratio-SD_dist_frm_VF_outside_inclusion, 
   #                   ymax=mean_dist_ratio+SD_dist_frm_VF_outside_inclusion), width=.2,
@@ -78,7 +81,7 @@ mean_dist_travel <- ggplot(Summary_df_for_plots, aes(x=behaviour_stage, y=mean_d
        x="", 
        y = "mean")+
   scale_fill_manual(values=c("#999999",  "#56B4E9"))
-mean_dist_travel
+
 
 
 distance_plots <- ggarrange(Mean_VF_graz, Max_VF_graz, 
@@ -87,6 +90,7 @@ distance_plots <- ggarrange(Mean_VF_graz, Max_VF_graz,
           labels = c("A", "B", "C", "D"),
           ncol = 2, nrow = 3)
 
+distance_plots
 ################################################################################
 ## Plots for behaviour 
 ################################################################################

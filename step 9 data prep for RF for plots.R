@@ -111,7 +111,7 @@ collared_animals <- collared_animals %>%
 str(collared_animals)
 
 
-dist_frm_VF_summary <- collared_animals %>%  group_by(behaviour_stage) %>% 
+dist_frm_VF_summary <- collared_animals %>%  group_by(behaviour_stage, compliance_score) %>% 
   summarise(
             mean_dist_frm_VF_inside_inclusion =mean(dist_frm_VF_inside_inclusion, na.rm=TRUE),
             SD_dist_frm_VF_inside_inclusion =sd(dist_frm_VF_inside_inclusion, na.rm=TRUE),
@@ -160,7 +160,7 @@ dist_taken_summary <- dist_taken_summary %>%
   mutate(dist_travel_ratio = total_dist_travel/ mins)
 dist_taken_summary
 
-dist_taken_summary_2 <- dist_taken_summary %>%  group_by(behaviour_stage) %>% 
+dist_taken_summary_2 <- dist_taken_summary %>%  group_by(behaviour_stage, compliance_score) %>% 
   summarise(mean_dist_ratio  =mean(dist_travel_ratio, na.rm=TRUE))
 
 RF_df <- left_join(RF_df, dist_taken_summary_2)
@@ -181,7 +181,7 @@ collared_animals <- collared_animals %>%
   rename(audio = Audio_values ,
          pulse = Shock_values)
 
-cue_summary_total <- collared_animals %>%  group_by(sheep, behaviour_stage) %>% 
+cue_summary_total <- collared_animals %>%  group_by(sheep, behaviour_stage, compliance_score) %>% 
   summarise(total_audio  =sum(audio, na.rm=TRUE),
             total_pulse  =sum(pulse, na.rm=TRUE),
             total_ratio = total_audio/(total_pulse+total_audio)*100)
@@ -194,7 +194,7 @@ cue_summary_total <- cue_summary_total %>%
          total_pulse_per_logged = total_pulse/ mins,
          total_ratio_per_logged = ((total_ratio/ mins))
          )
-cue_summary_total <- cue_summary_total %>% group_by(behaviour_stage) %>% 
+cue_summary_total <- cue_summary_total %>% group_by(behaviour_stage, compliance_score) %>% 
   summarise(Mean_total_audio_per_logged = mean(total_audio_per_logged, na.rm = TRUE),
             SD_total_audio_per_logged = sd(total_audio_per_logged, na.rm = TRUE),
             
@@ -207,7 +207,7 @@ cue_summary_total <- cue_summary_total %>% group_by(behaviour_stage) %>%
 RF_df <- left_join(RF_df, cue_summary_total)
 
 
-cue_summary <- collared_animals %>%  group_by(behaviour_stage) %>% 
+cue_summary <- collared_animals %>%  group_by(behaviour_stage, compliance_score) %>% 
   summarise(mean_audio  =mean(audio, na.rm=TRUE),
             SD_audio  =sd(audio, na.rm=TRUE),
             
@@ -244,7 +244,7 @@ beha_summary_prop <- collared_animals %>%
 beha_summary_prop
 
 
-beha_summary <- beha_summary_prop %>%  group_by(behaviour_stage) %>% 
+beha_summary <- beha_summary_prop %>%  group_by(behaviour_stage, compliance_score) %>% 
   summarise(mean_resting   =mean(prop_resting,  na.rm=TRUE),
             SD_resting   =sd(prop_resting,  na.rm=TRUE),
             
@@ -271,7 +271,7 @@ rm(beha_summary, beha_summary_prop)
 str(collared_animals)
 
 dist_bewteen <- collared_animals %>% 
-  group_by(behaviour_stage) %>% 
+  group_by(behaviour_stage, compliance_score) %>% 
   summarise(mean_numb_sheep_close    =mean(numb_sheep_close ,  na.rm=TRUE),
             SD_numb_sheep_close    =sd(numb_sheep_close ,  na.rm=TRUE))
             
