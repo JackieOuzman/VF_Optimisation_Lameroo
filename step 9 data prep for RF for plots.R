@@ -141,7 +141,7 @@ dist_frm_VF_summary <- dist_frm_VF_summary %>%
 ###--- rename the output and add the hours
 
 RF_df <- dist_frm_VF_summary
-RF_df <- left_join(RF_df, hours_behav)
+
 
 rm(dist_frm_VF_summary, test, temp)
 
@@ -225,52 +225,6 @@ rm(cue_summary, cue_summary_total )
 
 
 
-#### per day cue data
-#####################################################
-# ### Add DOY clm
-# temp <- collared_animals %>% 
-#   filter(!is.na(DOY ))
-# 
-# min_DOY <- min(temp$DOY, na.rm = TRUE)
-# max_DOY <- max(temp$DOY, na.rm = TRUE)
-# 
-# collared_animals <- collared_animals %>% 
-#   mutate(DOT = (DOY - min_DOY)+1 )
-#   
-# #####################################################
-# 
-# cue_DOT_summary <- collared_animals %>%  group_by(sheep, DOT) %>% 
-#   summarise(total_audio  =sum(audio, na.rm=TRUE),
-#             total_pulse  =sum(pulse, na.rm=TRUE),
-#             ratio = total_audio/(total_pulse+total_audio)*100)
-# 
-# cue_DOT_summary <- cue_DOT_summary %>% 
-#   filter(!is.na(sheep ))
-# 
-# 
-# cue_DOT_summary_wide <- cue_DOT_summary %>% 
-#   pivot_wider(names_from = DOT , 
-#               values_from = c(total_audio, total_pulse, ratio))
-# 
-# 
-# cue_DOT_summary_wide
-# 
-# cue_DOT_summary_wide <- cue_DOT_summary_wide %>% 
-#   rename(total_audio_Day1 = total_audio_1,
-#          total_audio_Day2 = total_audio_2,
-#          
-#          total_pulse_Day1 = total_pulse_1,
-#          total_pulse_Day2 = total_pulse_2,
-#          
-#          ratio_Day1 = ratio_1,
-#          ratio_Day2 = ratio_2)
-# 
-# cue_DOT_summary_wide[ is.na(cue_DOT_summary_wide) ] <- NA  
-# 
-# 
-# RF_df <- left_join(RF_df, cue_DOT_summary_wide)
-# rm(cue_DOT_summary_wide)
-# 
 
 
 #####################################################################################
