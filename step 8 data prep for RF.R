@@ -37,7 +37,7 @@ names(all_animals_collars)
 distinct(all_animals_collars, training_period)
 
 all_animals_collars <- all_animals_collars %>% 
-  filter(training_period != training)
+  filter(training_period != "training")
 
 ###############################################################################
 #### create a ID variable if the animal is in the exclusion zone or not  #####
@@ -68,6 +68,8 @@ count_VF_occurance_per_animal_wide <-count_VF_occurance_per_animal_wide %>%
                 prop_exclusion_zone = ((outside_VF /total_counts)*100)) %>% 
   arrange(sheep )
 
+## low value the animal is spending lots of time is exclusion zone
+## and high value the animal is spending lots of time in grazing zone
 
 ### turn the time spent in exclusion zone into categorical data.
 
@@ -76,12 +78,11 @@ count_VF_occurance_per_animal_wide <-
   dplyr::mutate(
     compliance_score =
       case_when(
-        prop_exclusion_zone <= 15 ~ "compliant",
-        prop_exclusion_zone > 15 ~ "non_compliant"
+        prop_exclusion_zone <= 15 ~ "non_compliant",
+        prop_exclusion_zone > 15 ~ "compliant"
       )
   )
-# case_when(prop_exclusion_zone == 0 ~ "compliant",
-#           prop_exclusion_zone > 0 ~ "non_compliant"))
+
 
 sheep_compliance_score <- count_VF_occurance_per_animal_wide %>% dplyr::select(sheep, compliance_score)
 

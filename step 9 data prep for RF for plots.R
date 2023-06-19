@@ -58,15 +58,14 @@ collared_animals <- collared_animals %>%
 
 ################################################################################
 ### Hours for early behaviour and hours for later behaviour
-hours_behav <- collared_animals %>% 
-  group_by(behaviour_stage) %>% 
-  summarise(count_logs = count(behaviour_stage))  ## I get an error message but it runs
 
-hours_behav <-   collared_animals %>% count(behaviour_stage, sheep) 
+
+hours_behav <- collared_animals %>% count(behaviour_stage, sheep)
+
 hours_behav$n <- as.double(hours_behav$n)
 hours_behav <-  hours_behav %>% mutate(mins = n *10) #each data point is a 10min log
 
-
+hours_behav
 #####################################################################################
 ### add in the distance between animals
 ######################################################################################
@@ -143,7 +142,7 @@ dist_frm_VF_summary <- dist_frm_VF_summary %>%
 RF_df <- dist_frm_VF_summary
 
 
-rm(dist_frm_VF_summary, test, temp)
+rm(dist_frm_VF_summary, temp)
 
 #####################################################################################
 ### what is the total distance travelled for the length of the per hours?
@@ -160,11 +159,15 @@ dist_taken_summary <- dist_taken_summary %>%
   mutate(dist_travel_ratio = total_dist_travel/ mins)
 dist_taken_summary
 
+temp <- collared_animals %>% dplyr::select(behaviour_stage, compliance_score, sheep)
+temp <- temp %>% distinct(behaviour_stage, compliance_score, sheep)
+dist_taken_summary <- left_join(dist_taken_summary, temp)
+
 dist_taken_summary_2 <- dist_taken_summary %>%  group_by(behaviour_stage, compliance_score) %>% 
   summarise(mean_dist_ratio  =mean(dist_travel_ratio, na.rm=TRUE))
 
 RF_df <- left_join(RF_df, dist_taken_summary_2)
-rm(dist_taken_summary, dist_taken_summary_2)
+rm(dist_taken_summary, dist_taken_summary_2,temp)
 
 
 
@@ -300,159 +303,3 @@ write.csv(RF_df,
 
 
 
-
-
-
-
-
-
-
-
-
-#####################################################################################
-### what is the total number of cues audio and pulse and ratio for the length of the trial?
-
-######################################################################################
-
-str(collared_animals)
-unique(collared_animals$Cue)
-
-collared_animals <- collared_animals %>% 
-  mutate(audio = 
-           case_when(Cue == "A" ~ 1,
-                     TRUE ~ NA_real_
-           ))
-
-collared_animals <- collared_animals %>% 
-  mutate(pulse = 
-           case_when(Cue == "S" ~ 1,
-                     TRUE ~ NA_real_
-           ))
-
-
-cue_summary <- collared_animals %>%  group_by(sheep) %>% 
-  summarise(total_audio  =sum(audio, na.rm=TRUE),
-            total_pulse  =sum(pulse, na.rm=TRUE),
-            ratio = total_audio/(total_pulse+total_audio)*100)
-cue_summary
-cue_summary[ is.na(cue_summary) ] <- NA
-
-
-RF_df <- left_join(RF_df, cue_summary)
-rm(cue_summary)
-
-
-
-
-
-
-#####################################################################################
-### what is the proportion of activity spent resting lying grazing? for the length of the trial?
-
-######################################################################################
-str(collared_animals)
-
-beha_summary <- collared_animals %>%  group_by(sheep) %>% 
-  summarise(total_resting   =sum(resting,  na.rm=TRUE),
-            total_standing  =sum(standing, na.rm=TRUE),
-            total_walking   =sum(walking,  na.rm=TRUE),  
-            total_running   =sum(running,  na.rm=TRUE),
-            total_beha      =  (total_resting+ total_standing+ total_walking+ total_running)                  
-  )                  
-
-beha_summary <- beha_summary %>% 
-  dplyr::mutate(
-    prop_resting = (total_resting/total_beha)*100,
-    prop_standing = (total_standing/total_beha)*100,
-    prop_walking = (total_walking/total_beha)*100,
-    prop_running = (total_running/total_beha)*100,
-    check = (prop_resting+prop_standing+prop_walking+prop_running)
-    )
-beha_summary <-beha_summary %>%  dplyr::select(sheep, prop_resting,prop_standing,prop_walking,prop_running)       
-
-RF_df <- left_join(RF_df, beha_summary)
-rm(beha_summary)
-
-
-#####################################################################################
-### add in the distance between animals
-######################################################################################
-
-dist_bewteen_animals_33 <- read_csv("W:/VF/Optimising_VF/Waikerie/data_prep/step7_count_close_animals_33percent.csv")
-dist_bewteen_animals_66 <- read_csv("W:/VF/Optimising_VF/Waikerie/data_prep/step7_count_close_animals_66percent.csv")
-dist_bewteen_animals_100 <- read_csv("W:/VF/Optimising_VF/Waikerie/data_prep/step7_count_close_animals_100percent.csv")
-
-
-## make a new variable hours
-dist_bewteen_animals_33$time_step <- as.POSIXct(dist_bewteen_animals_33$time_step,  tz = "Australia/Adelaide")
-dist_bewteen_animals_33 <- dist_bewteen_animals_33 %>%  dplyr::mutate(date= date(time_step))  
-
-dist_bewteen_animals_66$time_step <- as.POSIXct(dist_bewteen_animals_66$time_step,  tz = "Australia/Adelaide")
-dist_bewteen_animals_66 <- dist_bewteen_animals_66 %>%  dplyr::mutate(date= date(time_step))  
-
-dist_bewteen_animals_100$time_step <- as.POSIXct(dist_bewteen_animals_100$time_step,  tz = "Australia/Adelaide")
-dist_bewteen_animals_100 <- dist_bewteen_animals_100 %>%  dplyr::mutate(date= date(time_step))  
-
-#keep sheep with collars only on the days that the trials were run for them
- 
-date_13_14_keep_these <- c(2,3,5,13,14,17,22,30,35) #100% trial was run on the 13th and 14th
-date_15_16_keep_these <- c(12,23,25, 10,15,21,27,33,36)  # 33% and 66% trial was run 15th and 16th
-
-
-dist_bewteen_animals_100 <- dist_bewteen_animals_100 %>%
-  filter(date == "2018-03-13" | date == "2018-03-13")  %>%
-  filter(sheep %in% date_13_14_keep_these)
-
-
-dist_bewteen_animals_66 <-
-  dist_bewteen_animals_66 %>%  
-  filter(date == "2018-03-15" |date == "2018-03-16")  %>%
-  filter(sheep %in% date_15_16_keep_these)
-
-dist_bewteen_animals_33 <-
-  dist_bewteen_animals_33 %>%
-  filter(date == "2018-03-15" | date == "2018-03-16")  %>%
-  filter(sheep %in% date_15_16_keep_these)
-
-
-dist_bewteen_animals_all <- rbind(dist_bewteen_animals_33, dist_bewteen_animals_66, dist_bewteen_animals_100)
-rm(dist_bewteen_animals_33,dist_bewteen_animals_66,  dist_bewteen_animals_100)
-
-
-
-
-
-## we have a problem the data has a heap of zero some of these relate to when the trial was run and not run
-#for example on the 13/3 and 14/3 
-#This step check df if I have got al of these -  i have no zero in check file - so its all good.
-
-check_what_to_remove <- dist_bewteen_animals_all %>%  group_by(date,sheep) %>% 
-  summarise(mean_number_animals_close = mean(numb_sheep_close, na.rm=TRUE))  %>% 
-  arrange(sheep, date)
-
-
-
-mean_number_close_animals<- dist_bewteen_animals_all %>%  group_by(sheep) %>% 
-  summarise(mean_number_animals_close = mean(numb_sheep_close, na.rm=TRUE))  %>% 
-  arrange(sheep)
-
-mean_number_close_animals
-
-
-RF_df <- left_join(RF_df, mean_number_close_animals)
-rm(mean_number_close_animals)
-
-
-
-###################################################################################
-###                 write out df ready for the next step                      ###
-###################################################################################
-
-output_path <- "W:/VF/Optimising_VF/Waikerie/data_prep/"  
-
-write.csv(RF_df, 
-          paste0(output_path,"/step9_RF_df_input.csv"), 
-          row.names=FALSE)
-###################################################################################
-### condense the data so it can be simply used in RF model - one row per sheep  ###
-###################################################################################
