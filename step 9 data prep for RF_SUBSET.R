@@ -57,6 +57,13 @@ collared_animals <- collared_animals %>%
 
 
 ################################################################################
+### Retain only early behaviour logs ###
+################################################################################
+collared_animals <- collared_animals %>% 
+  filter(behaviour_stage == "Early behaviour")
+
+
+################################################################################
 ### Hours for early behaviour and hours for later behaviour
 
 
@@ -82,7 +89,7 @@ dist_bewteen <- dist_bewteen %>%  dplyr::mutate(date= date(time_step))
 collared_animals <- left_join(collared_animals, dist_bewteen)
 
 
-
+rm(dist_bewteen)
 #####################################################################################
 
 #####################################################################################
@@ -249,7 +256,7 @@ RF_df <- RF_df %>%
 output_path <- "W:/VF/Optimising_VF/Lameroo/data_prep/"  
 
 write.csv(RF_df, 
-          paste0(output_path,"/step9_RF_df_input.csv"), 
+          paste0(output_path,"/step9_RF_df_input_early_beh.csv"), 
           row.names=FALSE)
 ###################################################################################
 
