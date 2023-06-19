@@ -42,7 +42,7 @@ load.libraries(libs)
 
 
 baseDir <- "W:/VF/Optimising_VF/Lameroo/data_prep/"
-outDir <- "W:/VF/Optimising_VF/Lameroo/data_prep/"
+outDir <- "W:/VF/Optimising_VF/Lameroo/data_prep/RF_model_outputs/"
 
 numRandPts <- 50000
 
@@ -72,27 +72,18 @@ RF_df[ is.na(RF_df) ] <- 0
 
 str(RF_df)
 
-RF_df <- RF_df %>% dplyr::select(-sheep,
-                                 #-treatment,
-                                #-mean_dist_day1,
-                                #-mean_dist_day2,
-                                -total_audio_Day1,
-                                -total_audio_Day2,
-                                -total_audio_3,
-                                -total_audio_4,
-                                -total_audio_5,
-                                
-                                -total_pulse_Day1,
-                                -total_pulse_Day2,
-                                -total_pulse_3,
-                                -total_pulse_4,
-                                -total_pulse_5,
-                                
-                                -ratio_Day1,
-                                -ratio_Day2,
-                                -ratio_3,
-                                -ratio_4,
-                                -ratio_5,
+RF_df <- RF_df %>% dplyr::select(compliance_score,
+                                 mean_dist_frm_VF_inside_inclusion,
+                                 mean_dist_frm_VF_outside_inclusion,
+                                 max_dist_frm_VF_outside_inclusion,
+                                 total_dist_travel,
+                                 dist_travel_ratio,
+                                 mean_audio,
+                                 mean_pulse,
+                                 mean_ratio,
+                                 mean_grazing,
+                                 mean_moving,
+                                 mean_numb_sheep_close
                                 )
 
 
@@ -134,9 +125,9 @@ write.csv(correaltion,
 
 str(RF_df)
 
-# remove highly correlated varaiables
-RF_df <- RF_df %>% dplyr::select(-mean_dist,
-                                 -total_pulse
+# remove highly correlated variables
+RF_df <- RF_df %>% dplyr::select(-total_dist_travel#,
+                                # -mean_pulse perhaps this too?
                                  )
 
 names(RF_df)
@@ -160,33 +151,11 @@ whats_important_for_model <- as.data.frame(importance(RF_model))
 whats_important_for_model <- whats_important_for_model %>%  arrange(desc(MeanDecreaseGini))
 
 whats_important_for_model$MeanDecreaseGini <- round(whats_important_for_model$MeanDecreaseGini,2)
-whats_important_for_model
-# ---------------------------------------------------------------------------------------------------
+whats_important_for_model <- as.data.frame(MeanDecreaseGini)
 
-# Now lets try with subset of data.
-
-## task one make a dataset which only conatins day 1 data this is id_dataset
-
-#https://www.projectpro.io/recipes/perform-random-forest-r
-pred_test <- predict(RF_model, 
-                     newdata = RF_df, 
-                     type= "class")
-pred_test #this gives me a list of my sheep and what class they are assigned to - I hope?
-Check_output_of_RF_model <- as.data.frame(pred_test)
-str(RF_df_raw)
-
-sheep_ID_compliance_score <- RF_df_raw %>%  dplyr::select (sheep, compliance_score) 
-  
-sheep_ID_compliance_score_withRF_results <- cbind(sheep_ID_compliance_score, Check_output_of_RF_model)
-sheep_ID_compliance_score_withRF_results <- sheep_ID_compliance_score_withRF_results %>% 
-  mutate(pred_compliance_score = case_when(
-    pred_test == 1 ~ "non_compliant",
-    pred_test == 0 ~ "compliant"
-    
-  ))
-write.csv(sheep_ID_compliance_score_withRF_results, 
-          paste0(outDir,"/sheep_ID_compliance_score_withRF_results_check.csv"), 
-          row.names=FALSE)
+write.csv(whats_important_for_model, 
+          paste0(outDir,"/RF_input_data_Lameroo_MeanDecreaseGini.csv"), 
+          row.names=TRUE)
 
 
 # ---------------------------------------------------------------------------------------------------
