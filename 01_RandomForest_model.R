@@ -78,9 +78,12 @@ RF_df <- RF_df %>% dplyr::select(compliance_score,
                                  max_dist_frm_VF_outside_inclusion,
                                  total_dist_travel,
                                  dist_travel_ratio,
+                                 
                                  mean_audio,
                                  mean_pulse,
                                  mean_ratio,
+                                 
+                                 mean_resting,
                                  mean_grazing,
                                  mean_moving,
                                  mean_numb_sheep_close
@@ -126,8 +129,21 @@ write.csv(correaltion,
 str(RF_df)
 
 # remove highly correlated variables
-RF_df <- RF_df %>% dplyr::select(-total_dist_travel#,
-                                # -mean_pulse perhaps this too?
+RF_df <- RF_df %>% dplyr::select(compliance_score,
+                                 mean_dist_frm_VF_inside_inclusion,
+                                 mean_dist_frm_VF_outside_inclusion,
+                                 max_dist_frm_VF_outside_inclusion,
+                                 #total_dist_travel,
+                                 dist_travel_ratio,
+                                 
+                                 mean_audio,
+                                 #mean_pulse,
+                                 mean_ratio,
+                                 
+                                 mean_resting,
+                                 #mean_grazing,
+                                 mean_moving,
+                                 mean_numb_sheep_close
                                  )
 
 names(RF_df)
@@ -167,5 +183,4 @@ saveRDS(RF_model, file = paste0("W:/VF/Optimising_VF/Lameroo/data_prep/RF_model_
           
          
 
-#loading the model
-RF_modelVs1 = readRDS(paste0("W:/VF/Optimising_VF/Lameroo/data_prep/RF_model_outputs/", "RF_model_vs1.rda"))
+

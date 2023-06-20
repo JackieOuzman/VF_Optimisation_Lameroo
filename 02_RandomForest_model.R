@@ -38,20 +38,23 @@ RF_modelVs1
 RF_df_DOT1 <- read_csv(paste0(early_beheaviour_Dir, "step9_RF_df_input_early_beh.csv"))
 
 RF_df_DOT1[ is.na(RF_df_DOT1) ] <- 0
-    
+names(RF_df_DOT1)    
 ### subset the data so the clm match what was used for 01 Random Forest model
 RF_df_DOT1_for_model <- RF_df_DOT1 %>% dplyr::select(compliance_score,
-                                 mean_dist_frm_VF_inside_inclusion,
-                                 mean_dist_frm_VF_outside_inclusion,
-                                 max_dist_frm_VF_outside_inclusion,
-                                 total_dist_travel,
-                                 dist_travel_ratio,
-                                 mean_audio,
-                                 mean_pulse,
-                                 mean_ratio,
-                                 mean_grazing,
-                                 mean_moving,
-                                 mean_numb_sheep_close
+                                                     mean_dist_frm_VF_inside_inclusion,
+                                                     mean_dist_frm_VF_outside_inclusion,
+                                                     max_dist_frm_VF_outside_inclusion,
+                                                     #total_dist_travel,
+                                                     dist_travel_ratio,
+                                                     
+                                                     mean_audio,
+                                                     #mean_pulse,
+                                                     mean_ratio,
+                                                     
+                                                     mean_resting,
+                                                     #mean_grazing,
+                                                     mean_moving,
+                                                     mean_numb_sheep_close
 )
 
 
@@ -112,6 +115,9 @@ write.csv(RF_results,
 
 rm(All_data_RF_results, pred_test_for_early_beh, RF_df_DOT1, RF_df_DOT1_for_model, RF_modelVs1)
 
+#############################################################################
+## cal for % correctly classed
+
 
 RF_results <- RF_results %>% 
   mutate(correct_class = case_when(
@@ -119,6 +125,7 @@ RF_results <- RF_results %>%
     compliance_score_all_data == "non_compliant" & pred_compliance_score == "non_compliant" ~ 1,
     TRUE ~ 0
   ))
+RF_results
 
 classified_correctly_count <- sum(RF_results$correct_class)
 animals_count <- count(RF_results)
