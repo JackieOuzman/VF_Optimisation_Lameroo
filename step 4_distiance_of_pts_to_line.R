@@ -135,19 +135,33 @@ write.csv(GPS_all_df,
 
 
 
+###############################################################################
+## check that inside and outside is working
+
+str(GPS_all)
+str(GPS)
+
+
+GPS_all_inside_VF <- GPS_all %>% filter(VF_EX == "inside_VF")
+GPS_all_outside_VF <- GPS_all %>% filter(VF_EX == "outside_VF")
+
+
+ggplot() +
+  geom_sf(data = hard_fence_bound, color = "black", fill = NA) +
+  geom_sf(data = VF_line, color = "red", fill = NA) +
+  geom_sf(data = exclusion_zone, color = "blue", fill = NA) +
+  #geom_sf(data = GPS ,alpha = 0.03) +
+  geom_sf(data = GPS_all_inside_VF ,alpha = 0.03, color = "green") +
+  geom_sf(data = GPS_all_outside_VF ,alpha = 0.03, color = "red") +
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title = "check")
 
 
 
 
 
-
-#we have quite a few records that are logged in the exclusion zone
-
-str(GPS_all_df)
-
-count_exclusion_zone_occurance_per_animal_1 <- GPS_all_df %>%  group_by( Sheep_ID, VF_EX) %>% 
-  summarise(count_records = n())
-count_exclusion_zone_occurance_per_animal_1
 
 
 
